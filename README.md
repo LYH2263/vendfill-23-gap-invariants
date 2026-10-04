@@ -29,5 +29,12 @@ docker compose up --build
 ## 开发与测试
 
 ```bash
-docker compose exec api pytest -q
+docker compose exec api pytest -q                      # 单测 + 现网验收
+docker compose exec api pytest -m "not acceptance" -q  # 只跑纯单测
 ```
+
+`backend/tests/test_refill_acceptance.py` 是现网验收：补货生成、满仓列表、汇总页的
+数字全部拿 live 接口对账（严格口径 gap = 容量 − 库存 − 在途，等值比对，没有更松的
+第二套算法）。覆盖超占、顶满、想补超缺口被截断等场景；验收会临时改库存，跑完自动
+把货道和补货单恢复到绿仓种子，失败也不会多留一张补货单。API 地址可用
+`ACCEPTANCE_BASE_URL` 覆盖（默认 `http://localhost:9800`）。
